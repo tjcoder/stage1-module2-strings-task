@@ -1,5 +1,8 @@
 package com.epam.mjc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MethodParser {
 
     /**
@@ -20,6 +23,30 @@ public class MethodParser {
      * @return {@link MethodSignature} object filled with parsed values from source string
      */
     public MethodSignature parseFunction(String signatureString) {
-        throw new UnsupportedOperationException("You should implement this method.");
+        var delimiters = new ArrayList<String>();
+        delimiters.add("(");
+        delimiters.add(")");
+        delimiters.add(",");
+        delimiters.add(" ");
+
+        StringSplitter splitter = new StringSplitter();
+        var resultList = splitter.splitByDelimiters(signatureString, delimiters);
+
+        if (!List.of("private", "public", "protected").contains(resultList.get(0))) {
+            resultList.add(0, null);
+        }
+
+        var methodSignature = new MethodSignature(resultList.get(2));
+        methodSignature.setAccessModifier(resultList.get(0));
+        methodSignature.setReturnType(resultList.get(1));
+
+        var arguments = methodSignature.getArguments();
+        for (int i = 3; i < resultList.size(); i += 2) {
+            var type = resultList.get(i);
+            var name = resultList.get(i + 1);
+            arguments.add(new MethodSignature.Argument(type, name));
+        }
+
+        return methodSignature;
     }
 }
